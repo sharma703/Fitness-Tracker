@@ -1,0 +1,98 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String           @id @default(uuid())
+  email          String           @unique
+  password       String
+  name           String
+  age            Int?
+  gender         String?
+  height         Float?
+  weight         Float?
+  goal           String?
+  fitnessLevel   String?
+  dietaryPref    String?
+  scheduleJson   String? // Store as JSON string for SQLite
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  moodLogs       MoodLog[]
+  plans          Plan[]
+  sessions       Session[]
+  foodLogs       FoodLog[]
+  journalEntries JournalEntry[]
+  badges         Badge[]
+}
+
+model MoodLog {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  date       DateTime @default(now())
+  moodScore  Int
+  energy     Int
+  sleepHours Float
+  notes      String?
+}
+
+model Plan {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  weekNumber Int
+  planJson   String
+  version    Int      @default(1)
+  createdAt  DateTime @default(now())
+}
+
+model Session {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  date          DateTime @default(now())
+  exercisesDone String
+  duration      Int      // in minutes
+  calories      Float?
+  moodBefore    Int?
+  moodAfter     Int?
+}
+
+model FoodLog {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  date          DateTime @default(now())
+  mealName      String
+  nutrientsJson String
+  aiFeedback    String?
+}
+
+model JournalEntry {
+  id               String   @id @default(uuid())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  date             DateTime @default(now())
+  preSessionText   String?
+  postSessionText  String?
+}
+
+model ExerciseFact {
+  id           String  @id @default(uuid())
+  exerciseName String  @unique
+  factText     String
+  source       String?
+}
+
+model Badge {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  badgeName String
+  earnedAt  DateTime @default(now())
+}
